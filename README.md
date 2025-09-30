@@ -1,50 +1,88 @@
-# Welcome to your Expo app 👋
+# 🍱 MyFoodie
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**MyFoodie** is a handcrafted React Native app that helps **busy employees** quickly decide where to grab lunch, based on their **location, time budget, dietary needs, and mood**.
 
-## Get started
+This is a one-day prototype built as part of my personal portfolio to showcase **mobile app architecture, TypeScript, and user-centered problem solving**.
 
-1. Install dependencies
+---
+
+## 🚀 Features
+
+- 📍 **Location-aware** — detect your position or fallback to a known office hub.
+- ⏱ **Time budget filtering** — choose 10 / 20 / 30 / 45 minutes, and only see options that realistically fit.
+- 🥗 **Dietary preferences** — vegan, vegetarian, halal, gluten-free support.
+- 😋 **Mood-based suggestions** — light, comfort, or spicy recommendations.
+- 🗺 **Actionable results** — one-tap directions via Google Maps, with optional call/order links.
+- 🔒 **Resilient design** — works offline or if APIs fail, using a curated local seed dataset.
+
+---
+
+## 🎯 Business Value
+
+Employees often waste precious lunch minutes browsing apps or defaulting to the same places.  
+**MyFoodie solves this by:**
+
+- Saving time → get back to work faster.
+- Improving wellbeing → meals fit mood and dietary needs.
+- Supporting local businesses → predictable lunchtime traffic.
+
+This proof-of-concept demonstrates how **context-aware personalization** can improve user satisfaction and create opportunities for food delivery, wellness, and corporate engagement platforms.
+
+---
+
+## 🛠 Tech Stack
+
+- [Expo](https://expo.dev/) + React Native (TypeScript)
+- Expo Router for navigation
+- [expo-location](https://docs.expo.dev/versions/latest/sdk/location/) for geolocation
+- [Overpass API](https://overpass-api.de) (OpenStreetMap) for nearby venues
+- Pure TypeScript utilities for:
+  - Haversine distance + walking ETA
+  - Queue/prep heuristics
+  - Scoring algorithm (proximity, time-fit, dietary-fit, mood-fit, price-fit, popularity)
+
+---
+
+## 📲 Running the app
+
+1. Clone this repo:
+
+   ```bash
+   git clone https://github.com/your-username/myfoodie.git
+   cd myfoodie
+   ```
+
+2. Install dependencies:
 
    ```bash
    npm install
    ```
 
-2. Start the app
+3. Start Expo:
 
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+4. Open in:
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- Expo Go app (scan QR code)
+- IOS/Android simulator
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+⚠️ Note: Without a paid Apple Developer account, the app runs in Expo Go or your own local simulator/device.
 
-## Get a fresh project
+## 📸 Demo
 
-When you're ready, run:
+(Insert screenshots or a short demo video here — simulator recording is fine)
 
-```bash
-npm run reset-project
-```
+## 🧩 Future Enhancements
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+- Team lunch coordination (share a group link, consolidate picks)
+- AsyncStorage to save user preferences
+- Richer restaurant data (menu items, prices, photos)
+- Push notifications for lunch reminders
 
-## Learn more
+## 👤 Author
 
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Built with ❤️ by Alfons Caroles (aka Fonzie)
+Frontend & Mobile Developer • 6+ years experience (React, React Native, Next.js, TypeScript)
