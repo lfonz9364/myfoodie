@@ -1,12 +1,12 @@
-import { Mood, PriceBand } from "@/lib/types";
+import { Mood } from "@/lib/types";
 import { StyleSheet, Text, View } from "react-native";
 import Toggle from "./atoms/Toggle";
 
 type ControlProps = {
   timeBudget: number;
   setTimeBudget: (value: number) => void;
-  price: PriceBand;
-  setPrice: (price: PriceBand) => void;
+  price: string;
+  setPrice: (price: string) => void;
   mood: Mood;
   setMood: (mood: Mood) => void;
   dietary: string[];
@@ -22,63 +22,70 @@ const Control = ({
   setMood,
   dietary,
   setDietary,
-}: ControlProps) => (
-  <View>
-    <Text style={styles.toggleTitle}>Time Budget</Text>
-    <View style={styles.toggleWrapper}>
-      {[10, 20, 30, 45].map((min, idx) => (
-        <Toggle
-          key={`min-${idx}`}
-          label={`${min} mins`}
-          active={timeBudget === min}
-          onPress={() => setTimeBudget(min)}
-        />
-      ))}
-    </View>
+}: ControlProps) => {
+  const timeMinuteOptions = [10, 20, 30, 45];
+  const priceOptions = ["cheap", "moderate", "expensive"];
+  const moodOptions: Mood[] = ["light", "comfort", "spicy"];
+  const dietaryOptions = ["vegan", "vegetarian", "halal", "gluten-free"];
 
-    <Text style={styles.toggleTitle}>Price</Text>
-    <View style={styles.toggleWrapper}>
-      {[1, 2, 3].map((p, idx) => (
-        <Toggle
-          key={`price-${idx}`}
-          label={"$".repeat(p)}
-          active={price === p}
-          onPress={() => setPrice(p as PriceBand)}
-        />
-      ))}
-    </View>
+  return (
+    <View>
+      <Text style={styles.toggleTitle}>Time Budget</Text>
+      <View style={styles.toggleWrapper}>
+        {timeMinuteOptions.map((min, idx) => (
+          <Toggle
+            key={`min-${idx}`}
+            label={`${min} mins`}
+            active={timeBudget === min}
+            onPress={() => setTimeBudget(min)}
+          />
+        ))}
+      </View>
 
-    <Text style={styles.toggleTitle}>Mood</Text>
-    <View style={styles.toggleWrapper}>
-      {(["light", "comfort", "spicy"] as const).map((m, idx) => (
-        <Toggle
-          key={`mood-${idx}`}
-          label={m}
-          active={mood === m}
-          onPress={() => setMood(m)}
-        />
-      ))}
-    </View>
+      <Text style={styles.toggleTitle}>Price</Text>
+      <View style={styles.toggleWrapper}>
+        {priceOptions.map((p, idx) => (
+          <Toggle
+            key={`price-${idx}`}
+            label={p}
+            active={price === p}
+            onPress={() => setPrice(p)}
+          />
+        ))}
+      </View>
 
-    <Text style={styles.toggleTitle}>Dietary</Text>
-    <View style={{ ...styles.toggleWrapper, flexWrap: "wrap" }}>
-      {["vegan", "vegetarian", "halal", "gluten-free"].map((tag, idx) => (
-        <Toggle
-          key={`dietary-${idx}`}
-          label={tag}
-          active={dietary.includes(tag)}
-          onPress={() =>
-            setDietary(
-              dietary.includes(tag)
-                ? dietary.filter((t) => t !== tag)
-                : [...dietary, tag]
-            )
-          }
-        />
-      ))}
+      <Text style={styles.toggleTitle}>Mood</Text>
+      <View style={styles.toggleWrapper}>
+        {moodOptions.map((m, idx) => (
+          <Toggle
+            key={`mood-${idx}`}
+            label={m}
+            active={mood === m}
+            onPress={() => setMood(m)}
+          />
+        ))}
+      </View>
+
+      <Text style={styles.toggleTitle}>Dietary</Text>
+      <View style={{ ...styles.toggleWrapper, flexWrap: "wrap" }}>
+        {dietaryOptions.map((tag, idx) => (
+          <Toggle
+            key={`dietary-${idx}`}
+            label={tag}
+            active={dietary.includes(tag)}
+            onPress={() =>
+              setDietary(
+                dietary.includes(tag)
+                  ? dietary.filter((t) => t !== tag)
+                  : [...dietary, tag]
+              )
+            }
+          />
+        ))}
+      </View>
     </View>
-  </View>
-);
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
