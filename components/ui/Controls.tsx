@@ -1,12 +1,12 @@
-import { Mood } from "@/lib/types";
+import { Mood, PriceBand } from "@/lib/types";
 import { StyleSheet, Text, View } from "react-native";
 import Toggle from "./atoms/Toggle";
 
 type ControlProps = {
   timeBudget: number;
   setTimeBudget: (value: number) => void;
-  price: string;
-  setPrice: (price: string) => void;
+  price: PriceBand;
+  setPrice: (price: PriceBand) => void;
   mood: Mood;
   setMood: (mood: Mood) => void;
   dietary: string[];
@@ -28,6 +28,10 @@ const Control = ({
   const moodOptions: Mood[] = ["light", "comfort", "spicy"];
   const dietaryOptions = ["vegan", "vegetarian", "halal", "gluten-free"];
 
+  const onPriceOptionPress = (p: string) => {
+    setPrice((priceOptions.indexOf(p) + 1) as PriceBand);
+  };
+
   return (
     <View>
       <Text style={styles.toggleTitle}>Time Budget</Text>
@@ -48,8 +52,8 @@ const Control = ({
           <Toggle
             key={`price-${idx}`}
             label={p}
-            active={price === p}
-            onPress={() => setPrice(p)}
+            active={p === priceOptions[price - 1]}
+            onPress={() => onPriceOptionPress(p)}
           />
         ))}
       </View>
