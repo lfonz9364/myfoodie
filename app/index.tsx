@@ -1,4 +1,4 @@
-import Control from "@/components/ui/Controls";
+import Control from "@/components/ui/molecules/Controls";
 import { getCurrentLocation } from "@/lib/places";
 import { Mood, PriceBand } from "@/lib/types";
 import { Stack, useRouter } from "expo-router";
@@ -11,7 +11,7 @@ import {
   View,
 } from "react-native";
 
-export default function Home() {
+const Home = () => {
   const router = useRouter();
   const [loadingLocation, setLoadingLocation] = useState(true);
   const currentLocation = use(getCurrentLocation(setLoadingLocation));
@@ -49,7 +49,7 @@ export default function Home() {
     <View style={styles.container}>
       <Stack.Screen options={{ title: "My Foodie" }} />
       <Text style={styles.title}>Get a grub nearby</Text>
-      {loadingLocation && coordinate ? (
+      {loadingLocation && !coordinate ? (
         <ActivityIndicator size="large" color="#0000ff" />
       ) : (
         <Text>Location ready ✓</Text>
@@ -69,7 +69,7 @@ export default function Home() {
       <Button title="Help me find something bussin'" onPress={onButtonPress} />
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -85,3 +85,5 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
 });
+
+export default Home;
