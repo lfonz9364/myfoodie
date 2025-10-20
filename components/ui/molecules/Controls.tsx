@@ -1,6 +1,6 @@
 import { Mood, PriceBand } from "@/lib/types";
 import { StyleSheet, Text, View } from "react-native";
-import Toggle from "./atoms/Toggle";
+import Toggle from "../atoms/Toggle";
 
 type ControlProps = {
   timeBudget: number;
