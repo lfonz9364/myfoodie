@@ -1,3 +1,4 @@
+import { fetchNearbyOverpass } from "@/lib/overpass";
 import { scorePlace } from "@/lib/score";
 import { Mood, Place, PriceBand } from "@/lib/types";
 import { Stack, useLocalSearchParams } from "expo-router";
@@ -19,11 +20,11 @@ const Results = () => {
 
   useEffect(() => {
     const fetchPlaces = async () => {
-      const response = await fetch(
-        `https://api.myfoodie.com/places?lat=${lat}&lng=${lng}`
-      );
-      const data: Place[] = await response.json();
-      setPlaces(data);
+      const places = await fetchNearbyOverpass({
+        lat: Number(lat),
+        lon: Number(lng),
+      });
+      setPlaces(places);
     };
 
     fetchPlaces();
