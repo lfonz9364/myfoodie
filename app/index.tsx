@@ -2,7 +2,7 @@ import Control from "@/components/ui/molecules/Controls";
 import { getCurrentLocation } from "@/lib/places";
 import { Mood, PriceBand } from "@/lib/types";
 import { Stack, useRouter } from "expo-router";
-import { use, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Button,
@@ -13,36 +13,41 @@ import {
 
 const Home = () => {
   const router = useRouter();
-  const [loadingLocation, setLoadingLocation] = useState(true);
-  const currentLocation = use(getCurrentLocation(setLoadingLocation));
+  const [loadingLocation, setLoadingLocation] = useState(false);
   const [coordinate, setCoordinate] = useState<{
     lat: number;
     lng: number;
-  } | null>(currentLocation || null);
+  } | null>(null);
 
   const [timeBudget, setTimeBudget] = useState(20);
   const [price, setPrice] = useState<PriceBand>(2);
   const [mood, setMood] = useState<Mood>("comfort");
   const [dietary, setDietary] = useState<string[]>([]);
 
+  useEffect(() => {
+    const fetchLocation = async () => {
+      setLoadingLocation(true);
+      const loc = await getCurrentLocation(setLoadingLocation);
+      if (loc) {
+        setCoordinate(loc);
+      }
+    };
+
+    fetchLocation();
+  }, []);
+
   const onButtonPress = async () => {
-    const newCurrentLocation = await getCurrentLocation(setLoadingLocation);
-
-    if (newCurrentLocation !== coordinate) {
-      router.push({
-        pathname: "/results",
-        params: {
-          lat: newCurrentLocation?.lat ?? -33.8688,
-          lng: newCurrentLocation?.lng ?? 151.2093,
-          timeBudget,
-          price,
-          mood,
-          dietary: dietary.join(","),
-        },
-      });
-
-      setCoordinate(currentLocation || null);
-    }
+    router.push({
+      pathname: "/results",
+      params: {
+        lat: coordinate?.lat ?? -37.8187,
+        lng: coordinate?.lng ?? 144.9469,
+        timeBudget,
+        price,
+        mood,
+        dietary: dietary.join(","),
+      },
+    });
   };
 
   return (
