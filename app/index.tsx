@@ -1,8 +1,10 @@
 import ThemedButton from "@/components/ui/atoms/ThemedButton";
 import ThemedCard from "@/components/ui/atoms/ThemedCard";
+import AddressAutocomplete from "@/components/ui/molecules/AddressAutocomplete";
 import Controls from "@/components/ui/molecules/Controls";
 import { useAppTheme } from "@/hooks/useAppTheme";
-import { geocodeAddress, getCurrentLocation } from "@/lib/places";
+import { AddressSuggestion } from "@/lib/addressAutocomplete";
+import { getCurrentLocation } from "@/lib/places";
 import { Mood, PriceBand } from "@/lib/types";
 import { Stack, useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
@@ -11,7 +13,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -21,23 +22,19 @@ const Home = () => {
   const { colors } = useAppTheme();
 
   const [loadingLocation, setLoadingLocation] = useState(false);
-  const [loadingAddress, setLoadingAddress] = useState(false);
   const [coordinate, setCoordinate] = useState<{
     lat: number;
     lng: number;
   } | null>(null);
 
-  const [address, setAddress] = useState("");
-  const [resolvedAddress, setResolvedAddress] = useState<{
-    lat: number;
-    lng: number;
-  } | null>(null);
-  const [addressError, setAddressError] = useState("");
+  const [addressInput, setAddressInput] = useState("");
+  const [selectedAddress, setSelectedAddress] =
+    useState<AddressSuggestion | null>(null);
   const [submitError, setSubmitError] = useState("");
 
-  const [timeBudget, setTimeBudget] = useState(20);
-  const [price, setPrice] = useState<PriceBand>(2);
-  const [mood, setMood] = useState<Mood>("comfort");
+  const [timeBudget, setTimeBudget] = useState<number | null>(20);
+  const [price, setPrice] = useState<PriceBand | null>(2);
+  const [mood, setMood] = useState<Mood | null>("comfort");
   const [dietary, setDietary] = useState<string[]>([]);
 
   useEffect(() => {
@@ -54,52 +51,49 @@ const Home = () => {
   }, []);
 
   const selectedCoordinate = useMemo(() => {
-    return resolvedAddress ?? coordinate ?? null;
-  }, [resolvedAddress, coordinate]);
+    return selectedAddress
+      ? { lat: selectedAddress.lat, lng: selectedAddress.lng }
+      : coordinate;
+  }, [selectedAddress, coordinate]);
 
-  const handleUseAddress = async () => {
-    setAddressError("");
-    setResolvedAddress(null);
-
-    if (!address.trim()) {
-      setAddressError("Please enter an address.");
-      return;
+  const validateForm = () => {
+    if (!selectedCoordinate) {
+      return "Please allow location access or choose an address first.";
     }
 
-    setLoadingAddress(true);
-
-    const result = await geocodeAddress(address);
-
-    setLoadingAddress(false);
-
-    if (!result) {
-      setAddressError(
-        "Could not find that address. Try a more specific address.",
-      );
-      return;
+    if (timeBudget == null) {
+      return "Please choose a time budget.";
     }
 
-    setResolvedAddress(result);
+    if (price == null) {
+      return "Please choose a budget.";
+    }
+
+    if (mood == null) {
+      return "Please choose a mood.";
+    }
+
+    return "";
   };
 
   const onButtonPress = () => {
-    setSubmitError("");
+    const error = validateForm();
+    setSubmitError(error);
 
-    if (!selectedCoordinate) {
-      setSubmitError("Please allow location access or enter an address first.");
+    if (error) {
       return;
     }
 
     router.push({
       pathname: "/results",
       params: {
-        lat: selectedCoordinate.lat,
-        lng: selectedCoordinate.lng,
-        timeBudget,
-        price,
-        mood,
+        lat: selectedCoordinate!.lat,
+        lng: selectedCoordinate!.lng,
+        timeBudget: timeBudget!,
+        price: price!,
+        mood: mood!,
         dietary: dietary.join(","),
-        addressLabel: address.trim() || "",
+        addressLabel: selectedAddress?.label ?? "",
       },
     });
   };
@@ -111,7 +105,10 @@ const Home = () => {
     >
       <Stack.Screen options={{ title: "MyFoodie" }} />
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+      >
         <View
           style={[styles.heroCard, { backgroundColor: colors.darkSurface }]}
         >
@@ -148,67 +145,65 @@ const Home = () => {
             >
               {coordinate
                 ? "Current location ready ✓"
-                : "Current location unavailable. Enter an address instead."}
+                : "Current location unavailable. Choose an address instead."}
             </Text>
           )}
         </ThemedCard>
 
         <ThemedCard>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            Or enter an address
+            Search by address
           </Text>
 
-          <TextInput
-            value={address}
+          <AddressAutocomplete
+            value={addressInput}
             onChangeText={(value) => {
-              setAddress(value);
-              setAddressError("");
+              setAddressInput(value);
+              setSelectedAddress(null);
               setSubmitError("");
-              setResolvedAddress(null);
             }}
-            placeholder="e.g. 120 Spencer Street, Melbourne"
-            placeholderTextColor={colors.textMuted}
-            style={[
-              styles.input,
-              {
-                color: colors.text,
-                backgroundColor: colors.background,
-                borderColor: colors.borderStrong,
-              },
-            ]}
+            onSelect={(suggestion) => {
+              setAddressInput(suggestion.label);
+              setSelectedAddress(suggestion);
+              setSubmitError("");
+            }}
           />
 
-          {addressError ? (
-            <Text style={[styles.helperText, { color: colors.primaryText }]}>
-              {addressError}
-            </Text>
-          ) : resolvedAddress ? (
-            <Text style={[styles.helperText, { color: colors.success }]}>
-              Address found ✓
-            </Text>
-          ) : (
-            <Text style={[styles.helperText, { color: colors.textMuted }]}>
-              Search near your office, home, or meeting location.
-            </Text>
-          )}
+          <Text style={[styles.helperText, { color: colors.textMuted }]}>
+            Search near your office, home, or meeting location.
+          </Text>
 
-          <ThemedButton
-            label={loadingAddress ? "Checking address..." : "Use typed address"}
-            onPress={handleUseAddress}
-            disabled={loadingAddress}
-          />
+          {selectedAddress ? (
+            <Text style={[styles.selectedText, { color: colors.success }]}>
+              Selected: {selectedAddress.label}
+            </Text>
+          ) : null}
         </ThemedCard>
 
         <Controls
-          timeBudget={timeBudget}
-          setTimeBudget={setTimeBudget}
-          price={price}
-          setPrice={setPrice}
-          mood={mood}
-          setMood={setMood}
+          timeBudget={timeBudget ?? 0}
+          setTimeBudget={(value) => {
+            setTimeBudget(value);
+            setSubmitError("");
+          }}
+          price={(price ?? 2) as PriceBand}
+          setPrice={(value) => {
+            setPrice(value);
+            setSubmitError("");
+          }}
+          mood={(mood ?? "comfort") as Mood}
+          setMood={(value) => {
+            setMood(value);
+            setSubmitError("");
+          }}
           dietary={dietary}
           setDietary={setDietary}
         />
+
+        <Text style={[styles.requiredHint, { color: colors.textMuted }]}>
+          Time budget, budget, mood, and location are required. Dietary is
+          optional.
+        </Text>
 
         {submitError ? (
           <Text style={[styles.submitError, { color: colors.primaryText }]}>
@@ -267,16 +262,17 @@ const styles = StyleSheet.create({
   locationText: {
     fontSize: 14,
   },
-  input: {
-    minHeight: 48,
-    borderWidth: 1,
-    borderRadius: 14,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 15,
-  },
   helperText: {
     fontSize: 13,
+    lineHeight: 18,
+  },
+  selectedText: {
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: "600",
+  },
+  requiredHint: {
+    fontSize: 12,
     lineHeight: 18,
   },
   submitError: {
