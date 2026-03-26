@@ -21,6 +21,7 @@ const PlaceMapScreen = () => {
     walkMins?: string;
     prepMins?: string;
     queueMins?: string;
+    addressLabel?: string;
   }>();
 
   const placeLat = Number(params.lat);
@@ -35,6 +36,15 @@ const PlaceMapScreen = () => {
     Number(params.walkMins ?? 0) +
     Number(params.prepMins ?? 0) +
     Number(params.queueMins ?? 0);
+
+  const openDirections = () => {
+    const origin = `${userLat},${userLon}`;
+    const destination = `${placeLat},${placeLon}`;
+
+    Linking.openURL(
+      `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`,
+    );
+  };
 
   return (
     <SafeAreaView
@@ -54,12 +64,18 @@ const PlaceMapScreen = () => {
       >
         <Marker
           coordinate={{ latitude: userLat, longitude: userLon }}
-          title="You"
-          description="Your current location"
+          title={params.addressLabel ? "Search location" : "Your location"}
+          description={
+            params.addressLabel
+              ? String(params.addressLabel)
+              : "Your current location"
+          }
+          pinColor={colors.success} // 🟢 GREEN START
         />
         <Marker
           coordinate={{ latitude: placeLat, longitude: placeLon }}
           title={params.name || "Destination"}
+          pinColor={colors.error} // 🔴 RED DESTINATION
         />
       </MapView>
 
@@ -99,11 +115,7 @@ const PlaceMapScreen = () => {
         <ThemedButton
           label="Open turn-by-turn directions"
           variant="primary"
-          onPress={() =>
-            Linking.openURL(
-              `https://www.google.com/maps/dir/?api=1&destination=${placeLat},${placeLon}`,
-            )
-          }
+          onPress={openDirections}
         />
       </ThemedCard>
     </SafeAreaView>

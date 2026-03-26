@@ -352,6 +352,7 @@ const Results = () => {
                         walkMins: String(item.walkMins ?? 0),
                         prepMins: String(item.avgPrepMins ?? 0),
                         queueMins: String(item.queueMinsGuess ?? 0),
+                        addressLabel: String(addressLabel ?? ""),
                       },
                     })
                   }
