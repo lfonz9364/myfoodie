@@ -1,4 +1,5 @@
 import ThemedButton from "@/components/ui/atoms/ThemedButton";
+import ThemedCard from "@/components/ui/atoms/ThemedCard";
 import { useAppTheme } from "@/hooks/useAppTheme";
 import * as Linking from "expo-linking";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
@@ -62,18 +63,19 @@ const PlaceMapScreen = () => {
         />
       </MapView>
 
-      <View
+      <ThemedCard
         style={[
-          styles.sheet,
+          styles.sheetCard,
           {
-            backgroundColor: colors.surface,
-            borderColor: colors.border,
+            borderTopLeftRadius: 24,
+            borderTopRightRadius: 24,
+            borderBottomLeftRadius: 0,
+            borderBottomRightRadius: 0,
           },
         ]}
       >
         <View style={styles.topActionsRow}>
           <ThemedButton label="Back to results" onPress={() => router.back()} />
-
           <ThemedButton
             label="Search new"
             onPress={() => router.replace("/")}
@@ -103,7 +105,7 @@ const PlaceMapScreen = () => {
             )
           }
         />
-      </View>
+      </ThemedCard>
     </SafeAreaView>
   );
 };
@@ -115,30 +117,15 @@ const styles = StyleSheet.create({
   map: {
     flex: 1,
   },
-  sheet: {
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    padding: 20,
-    borderTopWidth: 1,
-    gap: 10,
+  sheetCard: {
+    marginTop: -8,
+    paddingTop: 20,
   },
   topActionsRow: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 10,
     marginBottom: 4,
-  },
-  quickButton: {
-    minHeight: 42,
-    borderRadius: 14,
-    paddingHorizontal: 14,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 1,
-  },
-  quickButtonText: {
-    fontSize: 14,
-    fontWeight: "700",
   },
   placeName: {
     fontSize: 22,
@@ -151,16 +138,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     marginBottom: 8,
-  },
-  primaryButton: {
-    minHeight: 52,
-    borderRadius: 16,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  primaryButtonText: {
-    fontSize: 15,
-    fontWeight: "800",
   },
 });
 

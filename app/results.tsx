@@ -1,4 +1,5 @@
 import ThemedButton from "@/components/ui/atoms/ThemedButton";
+import ThemedCard from "@/components/ui/atoms/ThemedCard";
 import { useAppTheme } from "@/hooks/useAppTheme";
 import { fetchNearbyOverpass } from "@/lib/overpass";
 import { scorePlace } from "@/lib/score";
@@ -139,16 +140,7 @@ const Results = () => {
             (item.queueMinsGuess ?? 0);
 
           return (
-            <View
-              style={[
-                styles.card,
-                {
-                  backgroundColor: colors.surface,
-                  borderColor: index === 0 ? colors.primary : colors.border,
-                  shadowColor: colors.shadow,
-                },
-              ]}
-            >
+            <ThemedCard highlighted={index === 0} style={styles.resultCard}>
               <View style={styles.cardTopRow}>
                 <View
                   style={[
@@ -266,7 +258,7 @@ const Results = () => {
                   />
                 ) : null}
               </View>
-            </View>
+            </ThemedCard>
           );
         }}
       />
@@ -299,17 +291,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "flex-end",
   },
-  smallButton: {
-    minHeight: 40,
-    borderRadius: 14,
-    paddingHorizontal: 14,
-    justifyContent: "center",
-    borderWidth: 1,
-  },
-  smallButtonText: {
-    fontSize: 14,
-    fontWeight: "700",
-  },
   headerCard: {
     borderRadius: 24,
     padding: 18,
@@ -323,16 +304,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
   },
-  card: {
-    borderRadius: 22,
-    padding: 16,
-    borderWidth: 1,
+  resultCard: {
     marginBottom: 14,
-    gap: 12,
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 3,
   },
   cardTopRow: {
     flexDirection: "row",
@@ -401,18 +374,6 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: 10,
     marginTop: 4,
-  },
-  actionButton: {
-    minHeight: 44,
-    borderRadius: 14,
-    paddingHorizontal: 14,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 1,
-  },
-  actionButtonText: {
-    fontSize: 14,
-    fontWeight: "700",
   },
 });
 
