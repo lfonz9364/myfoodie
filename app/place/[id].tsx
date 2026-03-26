@@ -1,7 +1,8 @@
+import ThemedButton from "@/components/ui/atoms/ThemedButton";
 import { useAppTheme } from "@/hooks/useAppTheme";
 import * as Linking from "expo-linking";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -71,35 +72,12 @@ const PlaceMapScreen = () => {
         ]}
       >
         <View style={styles.topActionsRow}>
-          <Pressable
-            onPress={() => router.back()}
-            style={[
-              styles.quickButton,
-              {
-                backgroundColor: colors.surface,
-                borderColor: colors.borderStrong,
-              },
-            ]}
-          >
-            <Text style={[styles.quickButtonText, { color: colors.text }]}>
-              Back to results
-            </Text>
-          </Pressable>
+          <ThemedButton label="Back to results" onPress={() => router.back()} />
 
-          <Pressable
+          <ThemedButton
+            label="Search new"
             onPress={() => router.replace("/")}
-            style={[
-              styles.quickButton,
-              {
-                backgroundColor: colors.surface,
-                borderColor: colors.borderStrong,
-              },
-            ]}
-          >
-            <Text style={[styles.quickButtonText, { color: colors.text }]}>
-              Search new
-            </Text>
-          </Pressable>
+          />
         </View>
 
         <Text style={[styles.placeName, { color: colors.text }]}>
@@ -116,23 +94,15 @@ const PlaceMapScreen = () => {
           navigation.
         </Text>
 
-        <Pressable
-          style={[styles.primaryButton, { backgroundColor: colors.primary }]}
+        <ThemedButton
+          label="Open turn-by-turn directions"
+          variant="primary"
           onPress={() =>
             Linking.openURL(
               `https://www.google.com/maps/dir/?api=1&destination=${placeLat},${placeLon}`,
             )
           }
-        >
-          <Text
-            style={[
-              styles.primaryButtonText,
-              { color: colors.darkSurfaceText },
-            ]}
-          >
-            Open turn-by-turn directions
-          </Text>
-        </Pressable>
+        />
       </View>
     </SafeAreaView>
   );

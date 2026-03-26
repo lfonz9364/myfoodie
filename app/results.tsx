@@ -1,3 +1,4 @@
+import ThemedButton from "@/components/ui/atoms/ThemedButton";
 import { useAppTheme } from "@/hooks/useAppTheme";
 import { fetchNearbyOverpass } from "@/lib/overpass";
 import { scorePlace } from "@/lib/score";
@@ -8,7 +9,6 @@ import {
   ActivityIndicator,
   FlatList,
   Linking,
-  Pressable,
   StyleSheet,
   Text,
   View,
@@ -104,20 +104,10 @@ const Results = () => {
         ListHeaderComponent={
           <View style={styles.headerWrap}>
             <View style={styles.topActionsRow}>
-              <Pressable
+              <ThemedButton
+                label="Search new"
                 onPress={() => router.replace("/")}
-                style={[
-                  styles.smallButton,
-                  {
-                    backgroundColor: colors.surface,
-                    borderColor: colors.borderStrong,
-                  },
-                ]}
-              >
-                <Text style={[styles.smallButtonText, { color: colors.text }]}>
-                  Search new
-                </Text>
-              </Pressable>
+              />
             </View>
 
             <View
@@ -241,7 +231,9 @@ const Results = () => {
               </View>
 
               <View style={styles.actionsRow}>
-                <Pressable
+                <ThemedButton
+                  label="View map"
+                  variant="primary"
                   onPress={() =>
                     router.push({
                       pathname: "/place/[id]",
@@ -258,60 +250,20 @@ const Results = () => {
                       },
                     })
                   }
-                  style={[
-                    styles.actionButton,
-                    {
-                      backgroundColor: colors.darkSurface,
-                      borderColor: colors.darkSurface,
-                    },
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.actionButtonText,
-                      { color: colors.darkSurfaceText },
-                    ]}
-                  >
-                    View map
-                  </Text>
-                </Pressable>
+                />
 
                 {item.phone ? (
-                  <Pressable
+                  <ThemedButton
+                    label="Call"
                     onPress={() => Linking.openURL(`tel:${item.phone}`)}
-                    style={[
-                      styles.actionButton,
-                      {
-                        backgroundColor: colors.surface,
-                        borderColor: colors.borderStrong,
-                      },
-                    ]}
-                  >
-                    <Text
-                      style={[styles.actionButtonText, { color: colors.text }]}
-                    >
-                      Call
-                    </Text>
-                  </Pressable>
+                  />
                 ) : null}
 
                 {item.orderUrl ? (
-                  <Pressable
+                  <ThemedButton
+                    label="Order"
                     onPress={() => Linking.openURL(item.orderUrl ?? "")}
-                    style={[
-                      styles.actionButton,
-                      {
-                        backgroundColor: colors.surface,
-                        borderColor: colors.borderStrong,
-                      },
-                    ]}
-                  >
-                    <Text
-                      style={[styles.actionButtonText, { color: colors.text }]}
-                    >
-                      Order
-                    </Text>
-                  </Pressable>
+                  />
                 ) : null}
               </View>
             </View>
