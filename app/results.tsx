@@ -7,7 +7,7 @@ import {
   getCachedRestaurants,
   saveCachedRestaurants,
 } from "@/lib/restaurantCache";
-import { scorePlace } from "@/lib/score";
+import { getScoreColor, scorePlace } from "@/lib/score";
 import { Mood, Place, PriceBand } from "@/lib/types";
 import NetInfo from "@react-native-community/netinfo";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
@@ -259,16 +259,16 @@ const Results = () => {
                     { backgroundColor: colors.primarySoft },
                   ]}
                 >
-                  <Text
-                    style={[
-                      styles.rankBadgeText,
-                      { color: colors.primaryText },
-                    ]}
-                  >
+                  <Text style={[styles.rankBadgeText, { color: colors.text }]}>
                     #{index + 1}
                   </Text>
                 </View>
-                <Text style={[styles.scoreText, { color: colors.textMuted }]}>
+                <Text
+                  style={[
+                    styles.scoreText,
+                    { color: getScoreColor(item.score, colors) },
+                  ]}
+                >
                   Match score {item.score.toFixed(1)}
                 </Text>
               </View>
@@ -279,24 +279,26 @@ const Results = () => {
 
               {!!item.tags?.length && (
                 <View style={styles.tagsRow}>
-                  {item.tags.slice(0, 4).map((tag) => (
-                    <View
-                      key={`${item.id}-${tag}`}
-                      style={[
-                        styles.tagChip,
-                        { backgroundColor: colors.surfaceMuted },
-                      ]}
-                    >
-                      <Text
+                  {Array.from(new Set(item.tags))
+                    .slice(0, 4)
+                    .map((tag) => (
+                      <View
+                        key={`${item.id}-${tag}`}
                         style={[
-                          styles.tagText,
-                          { color: colors.textSecondary },
+                          styles.tagChip,
+                          { backgroundColor: colors.surfaceMuted },
                         ]}
                       >
-                        {tag}
-                      </Text>
-                    </View>
-                  ))}
+                        <Text
+                          style={[
+                            styles.tagText,
+                            { color: colors.textSecondary },
+                          ]}
+                        >
+                          {tag}
+                        </Text>
+                      </View>
+                    ))}
                 </View>
               )}
 
