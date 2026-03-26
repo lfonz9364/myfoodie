@@ -16,8 +16,8 @@ const Toggle = ({ label, active, onPress }: ToggleProps) => {
       style={[
         styles.button,
         {
-          backgroundColor: active ? colors.darkSurface : colors.surface,
-          borderColor: active ? colors.darkSurface : colors.borderStrong,
+          backgroundColor: active ? colors.primary : colors.surface,
+          borderColor: active ? colors.primary : colors.borderStrong,
         },
       ]}
     >

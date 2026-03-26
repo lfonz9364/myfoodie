@@ -92,9 +92,7 @@ const AddressAutocomplete = ({
       ) : null}
 
       {error ? (
-        <Text style={[styles.errorText, { color: colors.primaryText }]}>
-          {error}
-        </Text>
+        <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>
       ) : null}
 
       {!!suggestions.length && (

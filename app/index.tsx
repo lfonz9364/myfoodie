@@ -206,7 +206,7 @@ const Home = () => {
         </Text>
 
         {submitError ? (
-          <Text style={[styles.submitError, { color: colors.primaryText }]}>
+          <Text style={[styles.submitError, { color: colors.error }]}>
             {submitError}
           </Text>
         ) : null}

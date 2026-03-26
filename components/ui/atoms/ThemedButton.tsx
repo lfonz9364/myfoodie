@@ -33,8 +33,8 @@ const ThemedButton = ({
       style={({ pressed }) => [
         styles.button,
         {
-          backgroundColor: isPrimary ? colors.darkSurface : colors.surface,
-          borderColor: isPrimary ? colors.darkSurface : colors.borderStrong,
+          backgroundColor: isPrimary ? colors.primary : colors.surface,
+          borderColor: isPrimary ? colors.primary : colors.borderStrong,
           opacity: disabled ? 0.5 : pressed ? 0.85 : 1,
         },
         style,

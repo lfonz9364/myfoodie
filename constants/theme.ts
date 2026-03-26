@@ -1,47 +1,68 @@
-/**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
- */
-
 import { Platform } from "react-native";
 
 export const lightTheme = {
-  background: "#F9FAFB",
+  // base
+  background: "#F0FDF4",
   surface: "#FFFFFF",
-  surfaceMuted: "#F3F4F6",
-  text: "#111827",
-  textSecondary: "#374151",
-  textMuted: "#6B7280",
-  border: "#E5E7EB",
-  borderStrong: "#D1D5DB",
-  primary: "#F97316",
-  primarySoft: "#FFF7ED",
-  primaryText: "#C2410C",
-  darkSurface: "#111827",
+  surfaceMuted: "#DCFCE7",
+
+  // text
+  text: "#14532D",
+  textSecondary: "#166534",
+  textMuted: "#4D7C0F",
+
+  // borders
+  border: "#BBF7D0",
+  borderStrong: "#86EFAC",
+
+  // primary brand (green)
+  primary: "#16A34A",
+  primarySoft: "#DCFCE7",
+  primaryText: "#166534",
+
+  // semantic colors
+  success: "#16A34A",
+  warning: "#EAB308",
+  error: "#DC2626",
+
+  // dark surfaces / hero areas
+  darkSurface: "#166534",
   darkSurfaceText: "#FFFFFF",
-  darkSurfaceMutedText: "#D1D5DB",
-  accent: "#F59E0B",
-  success: "#10B981",
+  darkSurfaceMutedText: "#D1FAE5",
+
+  // accent
+  accent: "#FFC72C",
+
+  // shadow
   shadow: "#000000",
 };
 
 export const darkTheme = {
-  background: "#030712",
-  surface: "#111827",
-  surfaceMuted: "#1F2937",
-  text: "#F9FAFB",
-  textSecondary: "#D1D5DB",
-  textMuted: "#9CA3AF",
-  border: "#374151",
-  borderStrong: "#4B5563",
-  primary: "#F97316",
-  primarySoft: "#7C2D12",
-  primaryText: "#FED7AA",
-  darkSurface: "#111827",
+  background: "#052E16",
+  surface: "#14532D",
+  surfaceMuted: "#166534",
+
+  text: "#F0FDF4",
+  textSecondary: "#DCFCE7",
+  textMuted: "#86EFAC",
+
+  border: "#166534",
+  borderStrong: "#22C55E",
+
+  primary: "#22C55E",
+  primarySoft: "#166534",
+  primaryText: "#DCFCE7",
+
+  success: "#22C55E",
+  warning: "#FFC72C",
+  error: "#EF4444",
+
+  darkSurface: "#14532D",
   darkSurfaceText: "#FFFFFF",
-  darkSurfaceMutedText: "#D1D5DB",
-  accent: "#F59E0B",
-  success: "#34D399",
+  darkSurfaceMutedText: "#D1FAE5",
+
+  accent: "#FFC72C",
+
   shadow: "#000000",
 };
 
@@ -52,13 +73,9 @@ export const theme = {
 
 export const Fonts = Platform.select({
   ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
     sans: "system-ui",
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
     serif: "ui-serif",
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
     rounded: "ui-rounded",
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
     mono: "ui-monospace",
   },
   default: {

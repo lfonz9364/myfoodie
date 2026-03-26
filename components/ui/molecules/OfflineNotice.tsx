@@ -19,15 +19,13 @@ const OfflineNotice = ({ visible, message }: OfflineNoticeProps) => {
       style={[
         styles.card,
         {
-          backgroundColor: colors.primarySoft,
-          borderColor: colors.primary,
+          backgroundColor: colors.warning,
+          borderColor: colors.warning,
         },
       ]}
     >
-      <Text style={[styles.title, { color: colors.primaryText }]}>
-        Offline mode
-      </Text>
-      <Text style={[styles.message, { color: colors.textSecondary }]}>
+      <Text style={[styles.title, { color: colors.error }]}>Offline mode</Text>
+      <Text style={[styles.message, { color: colors.text }]}>
         {message}
       </Text>
     </ThemedCard>
