@@ -101,18 +101,22 @@ const Results = () => {
 
         setPlaces(nearby);
         await saveCachedRestaurants(nearby);
-      } catch (error) {
-        const cached = await getCachedRestaurants();
+      } catch (e) {
+        if (e) {
+          const cached = await getCachedRestaurants();
 
-        if (cached?.length) {
-          setPlaces(cached);
-          setUsedCachedData(true);
-          setLoadError(
-            "Live results could not be loaded, so the latest saved list is shown.",
-          );
-        } else {
-          setPlaces([]);
-          setLoadError("Could not load restaurants right now.");
+          {
+            if (cached?.length) {
+              setPlaces(cached);
+              setUsedCachedData(true);
+              setLoadError(
+                "Live results could not be loaded, so the latest saved list is shown.",
+              );
+            } else {
+              setPlaces([]);
+              setLoadError("Could not load restaurants right now.");
+            }
+          }
         }
       } finally {
         setIsLoading(false);
@@ -361,7 +365,7 @@ const Results = () => {
                 {item.orderUrl ? (
                   <ThemedButton
                     label="Order"
-                    onPress={() => Linking.openURL(item.orderUrl)}
+                    onPress={() => Linking.openURL(item.orderUrl ?? "")}
                   />
                 ) : null}
               </View>
