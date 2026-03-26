@@ -269,7 +269,7 @@ const Results = () => {
                     { color: getScoreColor(item.score, colors) },
                   ]}
                 >
-                  Match score {item.score.toFixed(1)}
+                  Match score {item.score.toFixed(2)}
                 </Text>
               </View>
 

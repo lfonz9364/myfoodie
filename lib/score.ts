@@ -10,32 +10,45 @@ export function scorePlace(
     mood: Mood;
   },
 ) {
+  const {
+    walkMins,
+    avgPrepMins,
+    queueMinsGuess,
+    tags,
+    popularity: ratings,
+    price: restoPrice,
+  } = p;
+  const { timeBudget, price, dietary, mood } = prefs;
+
+  // ---- Time Score ---
   const totalMins =
-    (p.walkMins ?? 0) * 2 + (p.avgPrepMins ?? 8) + (p.queueMinsGuess ?? 6);
+    (walkMins ?? 10) + (avgPrepMins ?? 8) + (queueMinsGuess ?? 6);
 
-  const timeFit = Math.min(1, prefs.timeBudget / Math.max(5, totalMins)); // 0..1
-  const isDietaryFit = (diet: string) =>
-    p.tags.map((t) => t.toLowerCase()).includes(diet.toLowerCase());
-  const dietaryFit = prefs.dietary.length
-    ? prefs.dietary.every((d) => isDietaryFit(d))
+  const timeFit =
+    totalMins <= timeBudget
       ? 1
-      : 0.6
-    : 1;
+      : Math.max(0, 1 - (totalMins - timeBudget / timeBudget));
 
+  // ---- DIETARY SCORE (optional) ----
+  const dietaryFit =
+    dietary.length === 0 ? 1 : dietary.some((d) => tags?.includes(d)) ? 1 : 0;
+
+  // ---- PRICE SCORE
+  const priceDiff = Math.abs((restoPrice ?? 2) - price);
+  const priceFit = Math.max(0, 1 - priceDiff / 3);
+
+  // ---- MOOD SCORE ----
   const moodMap: Record<Mood, string[]> = {
     light: ["salad", "wrap", "poke", "sushi"],
     comfort: ["burger", "pizza", "noodles", "kebab", "rice"],
     spicy: ["thai", "indian", "mexican", "sichuan"],
   };
-  const moodFit = p.tags.some((t) =>
-    moodMap[prefs.mood].includes(t.toLowerCase()),
-  )
+  const moodFit = tags.some((t) => moodMap[mood].includes(t.toLowerCase()))
     ? 1
     : 0.7;
 
-  const priceFit = 1 - 0.2 * Math.abs((p.price ?? 2) - prefs.price);
-  const proximity = 1 / (1 + (p.walkMins ?? 0) / 10);
-  const popularity = p.popularity ?? 0.5;
+  const proximity = 1 / (1 + (walkMins ?? 0) / 10);
+  const popularity = ratings ?? 0.5;
 
   const score =
     0.3 * proximity + // Ensuring the restaurant is nearby
@@ -44,7 +57,7 @@ export function scorePlace(
     0.1 * moodFit + // Catering to the user's current mood
     0.1 * priceFit + // Fitting within the user's price range
     0.05 * popularity; // Considering the restaurant's popularity
-  return Math.round(score);
+  return Number(score.toFixed(2));
 }
 
 export const getScoreColor = (score: number, colors: AppColors) => {
