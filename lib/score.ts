@@ -1,8 +1,14 @@
+import { AppColors } from "@/constants/theme";
 import { Mood, Place, PriceBand } from "@/lib/types";
 
 export function scorePlace(
   p: Place,
-  prefs: { timeBudget: number; price: PriceBand; dietary: string[]; mood: Mood }
+  prefs: {
+    timeBudget: number;
+    price: PriceBand;
+    dietary: string[];
+    mood: Mood;
+  },
 ) {
   const totalMins =
     (p.walkMins ?? 0) * 2 + (p.avgPrepMins ?? 8) + (p.queueMinsGuess ?? 6);
@@ -22,7 +28,7 @@ export function scorePlace(
     spicy: ["thai", "indian", "mexican", "sichuan"],
   };
   const moodFit = p.tags.some((t) =>
-    moodMap[prefs.mood].includes(t.toLowerCase())
+    moodMap[prefs.mood].includes(t.toLowerCase()),
   )
     ? 1
     : 0.7;
@@ -37,8 +43,12 @@ export function scorePlace(
     0.15 * dietaryFit + // The next important factor after proximity and time
     0.1 * moodFit + // Catering to the user's current mood
     0.1 * priceFit + // Fitting within the user's price range
-    0.05 * popularity // Considering the restaurant's popularity
-    ;
-
+    0.05 * popularity; // Considering the restaurant's popularity
   return Math.round(score);
 }
+
+export const getScoreColor = (score: number, colors: AppColors) => {
+  if (score >= 0.8) return colors.success;
+  if (score >= 0.6) return colors.warning;
+  return colors.error;
+};
