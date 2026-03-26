@@ -1,49 +1,95 @@
 # 🍱 MyFoodie
 
-**MyFoodie** is a handcrafted React Native app that helps **busy employees** quickly decide where to grab lunch, based on their **location, time budget, dietary needs, and mood**.
+**MyFoodie** is an AI-inspired React Native app that helps **busy employees** quickly decide where to grab lunch based on their **location, time budget, dietary needs, and mood**.
 
-This is a one-day prototype built as part of my personal portfolio to showcase **mobile app architecture, TypeScript, and user-centered problem solving**.
+Instead of listing all nearby options, MyFoodie uses a **heuristic recommendation engine** to rank restaurants based on real-world constraints like walking time, preparation time, and queue estimation—helping users make faster, smarter decisions.
+
+This is a one-day prototype built as part of my portfolio to showcase **mobile architecture, TypeScript, and user-centered product thinking**.
 
 ---
 
 ## 🚀 Features
 
-- 📍 **Location-aware** — detect your position or fallback to a known office hub.
-- ⏱ **Time budget filtering** — choose 10 / 20 / 30 / 45 minutes, and only see options that realistically fit.
-- 🥗 **Dietary preferences** — vegan, vegetarian, halal, gluten-free support.
-- 😋 **Mood-based suggestions** — light, comfort, or spicy recommendations.
-- 🗺 **Actionable results** — one-tap directions via Google Maps, with optional call/order links.
-- 🔒 **Resilient design** — works offline or if APIs fail, using a curated local seed dataset.
+- 📍 **Location-aware** — use your current location or enter an address manually.
+- 💾 **Cached results** — stores the latest successful restaurant list for offline fallback.
+- 📶 **Offline-aware** — shows a clear in-app notice when internet access is unavailable.
+- ⏱ **Time budget filtering** — 10 / 20 / 30 / 45 minutes with realistic feasibility
+- 🥗 **Dietary preferences** — vegan, vegetarian, halal, gluten-free
+- 😋 **Mood-based suggestions** — light, comfort, or spicy
+- 🧠 **Smart ranking engine** — prioritizes options that best fit your current context
+- 🗺 **In-app map preview** — view destination and quickly navigate
+- ⚡ **Quick actions** — open directions, new search and back to results in one tap
+- 🌗 **Light & dark mode** — centralized theming system
+
+---
+
+## 🧠 How It Works
+
+MyFoodie uses a **deterministic, rule-based recommendation system** to rank nearby food options.
+
+Each venue is scored using a weighted combination of:
+
+- Walking distance (Haversine + estimated travel time)
+- Estimated preparation time
+- Queue time heuristic
+- Dietary compatibility
+- Mood alignment
+- Price fit
+- Popularity signals
+
+This approach simulates AI-style recommendations while remaining lightweight, explainable, and fast.
+
+> The system is intentionally designed to be extensible to future AI enhancements (LLMs, embeddings, or behavioural learning).
 
 ---
 
 ## 🎯 Business Value
 
-Employees often waste precious lunch minutes browsing apps or defaulting to the same places.  
+Employees often waste valuable lunch time browsing or defaulting to the same places.
+
 **MyFoodie solves this by:**
 
-- Saving time → get back to work faster.
-- Improving wellbeing → meals fit mood and dietary needs.
-- Supporting local businesses → predictable lunchtime traffic.
+- ⏳ **Reducing decision time** → faster, more confident choices
+- 🧘 **Improving wellbeing** → meals aligned with mood and dietary needs
+- 🏪 **Supporting local businesses** → more consistent discovery
+- 📈 **Enabling personalization** → foundation for AI-driven recommendations
 
-This proof-of-concept demonstrates how **context-aware personalization** can improve user satisfaction and create opportunities for food delivery, wellness, and corporate engagement platforms.
+This concept can be extended into food delivery platforms, workplace wellness tools, or multi-tenant SaaS products.
 
 ---
 
 ## 🛠 Tech Stack
 
-- [Expo](https://expo.dev/) + React Native (TypeScript)
-- Expo Router for navigation
-- [expo-location](https://docs.expo.dev/versions/latest/sdk/location/) for geolocation
-- [Overpass API](https://overpass-api.de) (OpenStreetMap) for nearby venues
-- Pure TypeScript utilities for:
-  - Haversine distance + walking ETA
-  - Queue/prep heuristics
-  - Scoring algorithm (proximity, time-fit, dietary-fit, mood-fit, price-fit, popularity)
+- Node 25.8.2
+- NPM 11.12.0
+- Expo + React Native (TypeScript)
+- Expo Router (navigation)
+- react-native-maps (in-app map preview)
+- expo-location (geolocation)
+- Overpass API (OpenStreetMap) for nearby venues
+- Geoapify autocomplete
+
+### Core Logic
+
+- Haversine distance + walking ETA
+- Queue / preparation time heuristics
+- Weighted scoring algorithm:
+  - proximity
+  - time-fit
+  - dietary-fit
+  - mood-fit
+  - price-fit
+  - popularity
+
+### UI Architecture
+
+- Reusable component system (ThemedButton, ThemedCard)
+- Centralized theme (light/dark)
+- Safe area handling via react-native-safe-area-context
 
 ---
 
-## 📲 Running the app
+## 📲 Running the App
 
 1. Clone this repo:
 
@@ -69,7 +115,7 @@ This proof-of-concept demonstrates how **context-aware personalization** can imp
 - Expo Go app (scan QR code)
 - IOS/Android simulator
 
-⚠️ Note: Without a paid Apple Developer account, the app runs in Expo Go or your own local simulator/device.
+⚠️ use Expo Go or simulator.
 
 ## 📸 Demo
 
@@ -77,12 +123,22 @@ This proof-of-concept demonstrates how **context-aware personalization** can imp
 
 ## 🧩 Future Enhancements
 
-- Team lunch coordination (share a group link, consolidate picks)
-- AsyncStorage to save user preferences
-- Richer restaurant data (menu items, prices, photos)
-- Push notifications for lunch reminders
+- 🤖 LLM-powered recommendation explanations
+- 🧠 Personalised user preferences (learning behaviour over time)
+- 🌦 Weather-aware suggestions
+- 👥 Team lunch coordination (shared session)
+- 💾 AsyncStorage for saved preferences
+- 🍽 Richer restaurant data (menus, images, pricing)
+
+## 💡 Key Learnings
+
+- Designing context-aware recommendation systems without ML
+- Balancing UX simplicity with algorithmic decision-making
+- Building scalable UI architecture with theming
+- Structuring apps for future AI extensibility
 
 ## 👤 Author
 
 Built with ❤️ by Alfons Caroles (aka Fonzie)
-Frontend & Mobile Developer • 6+ years experience (React, React Native, Next.js, TypeScript)
+Frontend & Mobile Developer • 7+ years experience
+(React, React Native, Next.js, TypeScript)
