@@ -1,33 +1,39 @@
+import ThemedButton from "@/components/ui/atoms/ThemedButton";
+import ThemedCard from "@/components/ui/atoms/ThemedCard";
 import Controls from "@/components/ui/molecules/Controls";
 import { useAppTheme } from "@/hooks/useAppTheme";
-import { getCurrentLocation } from "@/lib/places";
+import { geocodeAddress, getCurrentLocation } from "@/lib/places";
 import { Mood, PriceBand } from "@/lib/types";
 import { Stack, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-const FALLBACK_COORDINATE = {
-  lat: -37.8187,
-  lng: 144.9469,
-};
 
 const Home = () => {
   const router = useRouter();
   const { colors } = useAppTheme();
 
   const [loadingLocation, setLoadingLocation] = useState(false);
+  const [loadingAddress, setLoadingAddress] = useState(false);
   const [coordinate, setCoordinate] = useState<{
     lat: number;
     lng: number;
   } | null>(null);
+
+  const [address, setAddress] = useState("");
+  const [resolvedAddress, setResolvedAddress] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
+  const [addressError, setAddressError] = useState("");
+  const [submitError, setSubmitError] = useState("");
 
   const [timeBudget, setTimeBudget] = useState(20);
   const [price, setPrice] = useState<PriceBand>(2);
@@ -47,16 +53,53 @@ const Home = () => {
     fetchLocation();
   }, []);
 
+  const selectedCoordinate = useMemo(() => {
+    return resolvedAddress ?? coordinate ?? null;
+  }, [resolvedAddress, coordinate]);
+
+  const handleUseAddress = async () => {
+    setAddressError("");
+    setResolvedAddress(null);
+
+    if (!address.trim()) {
+      setAddressError("Please enter an address.");
+      return;
+    }
+
+    setLoadingAddress(true);
+
+    const result = await geocodeAddress(address);
+
+    setLoadingAddress(false);
+
+    if (!result) {
+      setAddressError(
+        "Could not find that address. Try a more specific address.",
+      );
+      return;
+    }
+
+    setResolvedAddress(result);
+  };
+
   const onButtonPress = () => {
+    setSubmitError("");
+
+    if (!selectedCoordinate) {
+      setSubmitError("Please allow location access or enter an address first.");
+      return;
+    }
+
     router.push({
       pathname: "/results",
       params: {
-        lat: coordinate?.lat ?? FALLBACK_COORDINATE.lat,
-        lng: coordinate?.lng ?? FALLBACK_COORDINATE.lng,
+        lat: selectedCoordinate.lat,
+        lng: selectedCoordinate.lng,
         timeBudget,
         price,
         mood,
         dietary: dietary.join(","),
+        addressLabel: address.trim() || "",
       },
     });
   };
@@ -81,22 +124,13 @@ const Home = () => {
           <Text
             style={[styles.subtitle, { color: colors.darkSurfaceMutedText }]}
           >
-            Pick your vibe, budget, and time limit. We&apos;ll rank nearby spots
-            that make sense for right now.
+            Pick your vibe, budget, time limit, and location.
           </Text>
         </View>
 
-        <View
-          style={[
-            styles.locationCard,
-            {
-              backgroundColor: colors.surface,
-              borderColor: colors.border,
-            },
-          ]}
-        >
-          <Text style={[styles.locationTitle, { color: colors.text }]}>
-            Your location
+        <ThemedCard>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            Current location
           </Text>
 
           {loadingLocation && !coordinate ? (
@@ -105,7 +139,7 @@ const Home = () => {
               <Text
                 style={[styles.locationText, { color: colors.textSecondary }]}
               >
-                Finding you…
+                Finding your current location…
               </Text>
             </View>
           ) : (
@@ -113,11 +147,57 @@ const Home = () => {
               style={[styles.locationText, { color: colors.textSecondary }]}
             >
               {coordinate
-                ? "Location ready ✓"
-                : "Using Melbourne CBD fallback for now"}
+                ? "Current location ready ✓"
+                : "Current location unavailable. Enter an address instead."}
             </Text>
           )}
-        </View>
+        </ThemedCard>
+
+        <ThemedCard>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            Or enter an address
+          </Text>
+
+          <TextInput
+            value={address}
+            onChangeText={(value) => {
+              setAddress(value);
+              setAddressError("");
+              setSubmitError("");
+              setResolvedAddress(null);
+            }}
+            placeholder="e.g. 120 Spencer Street, Melbourne"
+            placeholderTextColor={colors.textMuted}
+            style={[
+              styles.input,
+              {
+                color: colors.text,
+                backgroundColor: colors.background,
+                borderColor: colors.borderStrong,
+              },
+            ]}
+          />
+
+          {addressError ? (
+            <Text style={[styles.helperText, { color: colors.primaryText }]}>
+              {addressError}
+            </Text>
+          ) : resolvedAddress ? (
+            <Text style={[styles.helperText, { color: colors.success }]}>
+              Address found ✓
+            </Text>
+          ) : (
+            <Text style={[styles.helperText, { color: colors.textMuted }]}>
+              Search near your office, home, or meeting location.
+            </Text>
+          )}
+
+          <ThemedButton
+            label={loadingAddress ? "Checking address..." : "Use typed address"}
+            onPress={handleUseAddress}
+            disabled={loadingAddress}
+          />
+        </ThemedCard>
 
         <Controls
           timeBudget={timeBudget}
@@ -130,14 +210,18 @@ const Home = () => {
           setDietary={setDietary}
         />
 
-        <Pressable
-          style={[styles.ctaButton, { backgroundColor: colors.primary }]}
-          onPress={onButtonPress}
-        >
-          <Text style={[styles.ctaText, { color: colors.darkSurfaceText }]}>
-            Find my lunch
+        {submitError ? (
+          <Text style={[styles.submitError, { color: colors.primaryText }]}>
+            {submitError}
           </Text>
-        </Pressable>
+        ) : null}
+
+        <ThemedButton
+          label="Find my lunch"
+          variant="primary"
+          onPress={onButtonPress}
+          style={styles.ctaButton}
+        />
       </ScrollView>
     </SafeAreaView>
   );
@@ -150,6 +234,7 @@ const styles = StyleSheet.create({
   content: {
     padding: 20,
     gap: 16,
+    paddingBottom: 24,
   },
   heroCard: {
     borderRadius: 28,
@@ -170,13 +255,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 22,
   },
-  locationCard: {
-    borderRadius: 20,
-    padding: 16,
-    borderWidth: 1,
-    gap: 8,
-  },
-  locationTitle: {
+  sectionTitle: {
     fontSize: 15,
     fontWeight: "700",
   },
@@ -188,17 +267,27 @@ const styles = StyleSheet.create({
   locationText: {
     fontSize: 14,
   },
-  ctaButton: {
-    borderRadius: 18,
-    minHeight: 56,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 4,
-    marginBottom: 24,
+  input: {
+    minHeight: 48,
+    borderWidth: 1,
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 15,
   },
-  ctaText: {
-    fontSize: 16,
-    fontWeight: "800",
+  helperText: {
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  submitError: {
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: "600",
+  },
+  ctaButton: {
+    minHeight: 56,
+    borderRadius: 18,
+    marginTop: 4,
   },
 });
 

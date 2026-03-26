@@ -1,9 +1,15 @@
 import ThemedButton from "@/components/ui/atoms/ThemedButton";
 import ThemedCard from "@/components/ui/atoms/ThemedCard";
+import OfflineNotice from "@/components/ui/molecules/OfflineNotice";
 import { useAppTheme } from "@/hooks/useAppTheme";
 import { fetchNearbyOverpass } from "@/lib/overpass";
+import {
+  getCachedRestaurants,
+  saveCachedRestaurants,
+} from "@/lib/restaurantCache";
 import { scorePlace } from "@/lib/score";
 import { Mood, Place, PriceBand } from "@/lib/types";
+import NetInfo from "@react-native-community/netinfo";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -36,17 +42,81 @@ const formatScoreReason = (item: RankedPlace, timeBudget: number) => {
 const Results = () => {
   const router = useRouter();
   const { colors } = useAppTheme();
-  const { lat, lng, timeBudget, price, mood, dietary } = useLocalSearchParams();
+  const { lat, lng, timeBudget, price, mood, dietary, addressLabel } =
+    useLocalSearchParams();
+
   const [places, setPlaces] = useState<Place[] | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isOffline, setIsOffline] = useState(false);
+  const [usedCachedData, setUsedCachedData] = useState(false);
+  const [loadError, setLoadError] = useState("");
+
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      const offline = !(
+        state.isConnected && state.isInternetReachable !== false
+      );
+      setIsOffline(offline);
+    });
+
+    return unsubscribe;
+  }, []);
 
   useEffect(() => {
     const fetchPlaces = async () => {
-      const nearby = await fetchNearbyOverpass({
-        lat: Number(lat),
-        lon: Number(lng),
-      });
+      setIsLoading(true);
+      setLoadError("");
+      setUsedCachedData(false);
 
-      setPlaces(nearby);
+      try {
+        const netState = await NetInfo.fetch();
+        const offline = !(
+          netState.isConnected && netState.isInternetReachable !== false
+        );
+
+        setIsOffline(offline);
+
+        if (offline) {
+          const cached = await getCachedRestaurants();
+
+          if (cached?.length) {
+            setPlaces(cached);
+            setUsedCachedData(true);
+            setIsLoading(false);
+            return;
+          }
+
+          setPlaces([]);
+          setLoadError(
+            "You’re offline and no cached restaurant list is available yet.",
+          );
+          setIsLoading(false);
+          return;
+        }
+
+        const nearby = await fetchNearbyOverpass({
+          lat: Number(lat),
+          lon: Number(lng),
+        });
+
+        setPlaces(nearby);
+        await saveCachedRestaurants(nearby);
+      } catch (error) {
+        const cached = await getCachedRestaurants();
+
+        if (cached?.length) {
+          setPlaces(cached);
+          setUsedCachedData(true);
+          setLoadError(
+            "Live results could not be loaded, so the latest saved list is shown.",
+          );
+        } else {
+          setPlaces([]);
+          setLoadError("Could not load restaurants right now.");
+        }
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchPlaces();
@@ -73,7 +143,7 @@ const Results = () => {
 
   const selectedTimeBudget = Number(timeBudget) || 20;
 
-  if (!places) {
+  if (isLoading) {
     return (
       <SafeAreaView
         style={[
@@ -104,6 +174,17 @@ const Results = () => {
         contentContainerStyle={styles.listContent}
         ListHeaderComponent={
           <View style={styles.headerWrap}>
+            <OfflineNotice
+              visible={isOffline || usedCachedData || !!loadError}
+              message={
+                isOffline && usedCachedData
+                  ? "No internet connection. Showing your latest saved restaurant list."
+                  : isOffline
+                    ? "No internet connection."
+                    : loadError || ""
+              }
+            />
+
             <View style={styles.topActionsRow}>
               <ThemedButton
                 label="Search new"
@@ -130,7 +211,33 @@ const Results = () => {
               >
                 Ranked by time fit, distance, mood, price, and dietary match.
               </Text>
+
+              {addressLabel ? (
+                <Text
+                  style={[
+                    styles.headerMeta,
+                    { color: colors.darkSurfaceMutedText },
+                  ]}
+                >
+                  Searching near {String(addressLabel)}
+                </Text>
+              ) : null}
             </View>
+
+            {!ranked.length ? (
+              <ThemedCard>
+                <Text style={[styles.emptyTitle, { color: colors.text }]}>
+                  No restaurants available
+                </Text>
+                <Text
+                  style={[styles.emptyText, { color: colors.textSecondary }]}
+                >
+                  {isOffline
+                    ? "Connect to the internet at least once to save a restaurant list for offline use."
+                    : "Try a different address or search again."}
+                </Text>
+              </ThemedCard>
+            ) : null}
           </View>
         }
         renderItem={({ item, index }) => {
@@ -168,9 +275,9 @@ const Results = () => {
 
               {!!item.tags?.length && (
                 <View style={styles.tagsRow}>
-                  {item.tags.slice(0, 4).map((tag, idx) => (
+                  {item.tags.slice(0, 4).map((tag) => (
                     <View
-                      key={`${item.id}-${tag}-${idx}`}
+                      key={`${item.id}-${tag}`}
                       style={[
                         styles.tagChip,
                         { backgroundColor: colors.surfaceMuted },
@@ -199,9 +306,9 @@ const Results = () => {
                   ["Prep", `${item.avgPrepMins ?? "?"} min`],
                   ["Queue", `${item.queueMinsGuess ?? "?"} min`],
                   ["Total", `${totalMinutes} min`],
-                ].map(([label, value], idx) => (
+                ].map(([label, value]) => (
                   <View
-                    key={`${item.id}-${label}-${idx}`}
+                    key={`${item.id}-${label}`}
                     style={[
                       styles.metricCard,
                       {
@@ -254,7 +361,7 @@ const Results = () => {
                 {item.orderUrl ? (
                   <ThemedButton
                     label="Order"
-                    onPress={() => Linking.openURL(item.orderUrl ?? "")}
+                    onPress={() => Linking.openURL(item.orderUrl)}
                   />
                 ) : null}
               </View>
@@ -301,6 +408,19 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   headerSubtitle: {
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  headerMeta: {
+    fontSize: 13,
+    lineHeight: 18,
+    marginTop: 6,
+  },
+  emptyTitle: {
+    fontSize: 16,
+    fontWeight: "800",
+  },
+  emptyText: {
     fontSize: 14,
     lineHeight: 20,
   },
