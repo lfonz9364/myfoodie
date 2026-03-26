@@ -168,9 +168,9 @@ const Results = () => {
 
               {!!item.tags?.length && (
                 <View style={styles.tagsRow}>
-                  {item.tags.slice(0, 4).map((tag) => (
+                  {item.tags.slice(0, 4).map((tag, idx) => (
                     <View
-                      key={`${item.id}-${tag}`}
+                      key={`${item.id}-${tag}-${idx}`}
                       style={[
                         styles.tagChip,
                         { backgroundColor: colors.surfaceMuted },
@@ -199,9 +199,9 @@ const Results = () => {
                   ["Prep", `${item.avgPrepMins ?? "?"} min`],
                   ["Queue", `${item.queueMinsGuess ?? "?"} min`],
                   ["Total", `${totalMinutes} min`],
-                ].map(([label, value]) => (
+                ].map(([label, value], idx) => (
                   <View
-                    key={`${item.id}-${label}`}
+                    key={`${item.id}-${label}-${idx}`}
                     style={[
                       styles.metricCard,
                       {
